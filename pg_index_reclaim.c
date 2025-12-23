@@ -841,7 +841,7 @@ execute_merge(Relation rel, BlockNumber left_block, BlockNumber right_block)
 			 * Add the item to the right page. We use InvalidOffsetNumber
 			 * to add at the end of the page's items.
 			 */
-			newoff = PageAddItem(right_page, (Item) itup, itemsz,
+			newoff = PageAddItem(right_page, (char *) itup, itemsz,
 								 InvalidOffsetNumber, false, false);
 
 			if (newoff == InvalidOffsetNumber)
@@ -887,21 +887,12 @@ execute_merge(Relation rel, BlockNumber left_block, BlockNumber right_block)
 		left_hikey_itemid = PageGetItemId(left_page, P_HIKEY);
 		if (ItemIdIsUsed(left_hikey_itemid) && ItemIdHasStorage(left_hikey_itemid))
 		{
-			Size		left_hikey_size;
-			IndexTuple	left_hikey;
-
-			left_hikey_size = ItemIdGetLength(left_hikey_itemid);
-			left_hikey = (IndexTuple) PageGetItem(left_page, left_hikey_itemid);
-
 			/*
 			 * The right page's current high key should remain (it's the upper bound
-			 * for this page). But wait - after merging, the right page now contains
-			 * items from the left page, so its high key should be the left page's
-			 * high key (which is the bound for the leftmost items now on this page).
-			 *
-			 * Actually, for B-tree correctness, the merged page's high key should
-			 * still be the ORIGINAL right page's high key (if it had one), because
-			 * that's the upper bound that parent pages expect.
+			 * for this page). After merging, the right page now contains items from
+			 * the left page, but the high key should still be the ORIGINAL right
+			 * page's high key (if it had one), because that's the upper bound that
+			 * parent pages expect.
 			 *
 			 * The left page's high key was the separator between left and right,
 			 * but now that they're merged, we don't need it.
