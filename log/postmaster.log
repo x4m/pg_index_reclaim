@@ -1,0 +1,52 @@
+2025-12-23 23:51:59.969 +05 postmaster[64570] LOG:  starting PostgreSQL 19devel on aarch64-apple-darwin24.6.0, compiled by Apple clang version 17.0.0 (clang-1700.0.13.5), 64-bit
+2025-12-23 23:51:59.970 +05 postmaster[64570] LOG:  listening on Unix socket "/var/folders/d8/jy0s85hx4fg_y2wndc_yvl_h0000gp/T/pg_regress-UaS9Mb/.s.PGSQL.58928"
+2025-12-23 23:51:59.987 +05 startup[64576] LOG:  database system was shut down at 2025-12-23 23:51:58 +05
+2025-12-23 23:51:59.988 +05 client backend[64577] [unknown] FATAL:  the database system is starting up
+2025-12-23 23:51:59.991 +05 postmaster[64570] LOG:  database system is ready to accept connections
+TRAP: failed Assert("ItemIdHasStorage(ii)"), File: "bufpage.c", Line: 1143, PID: 64587
+0   postgres                            0x000000010119f398 ExceptionalCondition + 216
+1   postgres                            0x0000000100f4c774 PageIndexTupleDelete + 1212
+2   pg_index_reclaim.dylib              0x000000010191bfe8 execute_merge + 8896
+3   pg_index_reclaim.dylib              0x0000000101918b24 pg_index_reclaim_execute + 1756
+4   postgres                            0x0000000100c22758 ExecMakeTableFunctionResult + 740
+5   postgres                            0x0000000100c424e0 FunctionNext + 156
+6   postgres                            0x0000000100c244ac ExecScanFetch + 724
+7   postgres                            0x0000000100c23e0c ExecScanExtended + 148
+8   postgres                            0x0000000100c23d6c ExecScan + 92
+9   postgres                            0x0000000100c4204c ExecFunctionScan + 56
+10  postgres                            0x0000000100c1e91c ExecProcNodeFirst + 92
+11  postgres                            0x0000000100c1564c ExecProcNode + 60
+12  postgres                            0x0000000100c102a8 ExecutePlan + 244
+13  postgres                            0x0000000100c10138 standard_ExecutorRun + 456
+14  postgres                            0x0000000100c0ff60 ExecutorRun + 84
+15  postgres                            0x0000000100f64d84 PortalRunSelect + 296
+16  postgres                            0x0000000100f64794 PortalRun + 656
+17  postgres                            0x0000000100f5f5cc exec_simple_query + 1380
+18  postgres                            0x0000000100f5e6e8 PostgresMain + 3244
+19  postgres                            0x0000000100f56008 BackendInitialize + 0
+20  postgres                            0x0000000100e2c67c postmaster_child_launch + 456
+21  postgres                            0x0000000100e33e0c BackendStartup + 304
+22  postgres                            0x0000000100e31ca8 ServerLoop + 372
+23  postgres                            0x0000000100e30788 PostmasterMain + 6444
+24  postgres                            0x0000000100caf2a8 main + 924
+25  dyld                                0x000000018dc2ab98 start + 6076
+2025-12-23 23:52:01.051 +05 postmaster[64570] LOG:  client backend (PID 64587) was terminated by signal 6: Abort trap: 6
+2025-12-23 23:52:01.051 +05 postmaster[64570] DETAIL:  Failed process was running: SELECT pages_merged >= 0 AS valid_result, space_reclaimed >= 0 AS valid_space
+	FROM reclaim_space_execute('test_reclaim_idx'::regclass, 50);
+2025-12-23 23:52:01.052 +05 postmaster[64570] LOG:  terminating any other active server processes
+2025-12-23 23:52:01.054 +05 postmaster[64570] LOG:  all server processes terminated; reinitializing
+2025-12-23 23:52:01.061 +05 startup[64593] LOG:  database system was interrupted; last known up at 2025-12-23 23:51:59 +05
+2025-12-23 23:52:01.061 +05 startup[64593] LOG:  database system was not properly shut down; automatic recovery in progress
+2025-12-23 23:52:01.063 +05 startup[64593] LOG:  redo starts at 0/0178EFD8
+2025-12-23 23:52:01.177 +05 startup[64593] LOG:  invalid record length at 0/01D85010: expected at least 24, got 0
+2025-12-23 23:52:01.177 +05 startup[64593] LOG:  redo done at 0/01D84F78 system usage: CPU: user: 0.05 s, system: 0.01 s, elapsed: 0.11 s
+2025-12-23 23:52:01.193 +05 checkpointer[64594] LOG:  checkpoint starting: end-of-recovery fast wait
+2025-12-23 23:52:01.388 +05 checkpointer[64594] LOG:  checkpoint complete: wrote 1058 buffers (6.5%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.194 s, sync=0.001 s, total=0.196 s; sync files=0, longest=0.000 s, average=0.000 s; distance=6104 kB, estimate=6104 kB; lsn=0/01D85010, redo lsn=0/01D85010
+2025-12-23 23:52:01.394 +05 postmaster[64570] LOG:  database system is ready to accept connections
+2025-12-23 23:52:01.415 +05 postmaster[64570] LOG:  received fast shutdown request
+2025-12-23 23:52:01.416 +05 postmaster[64570] LOG:  aborting any active transactions
+2025-12-23 23:52:01.417 +05 postmaster[64570] LOG:  background worker "logical replication launcher" (PID 64603) exited with exit code 1
+2025-12-23 23:52:01.418 +05 checkpointer[64594] LOG:  shutting down
+2025-12-23 23:52:01.418 +05 checkpointer[64594] LOG:  checkpoint starting: shutdown fast
+2025-12-23 23:52:01.421 +05 checkpointer[64594] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.003 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=5493 kB; lsn=0/01D85380, redo lsn=0/01D85380
+2025-12-23 23:52:01.425 +05 postmaster[64570] LOG:  database system is shut down

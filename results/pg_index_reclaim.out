@@ -1,0 +1,82 @@
+--
+-- Test pg_index_reclaim extension
+--
+-- Create extension
+CREATE EXTENSION pg_index_reclaim;
+-- Create test table with data
+-- Using a smaller dataset for regression testing (10000 rows instead of 1M)
+CREATE TABLE test_reclaim AS 
+SELECT random() AS a, random() AS b 
+FROM generate_series(1, 10000);
+-- Create index on the table
+CREATE INDEX test_reclaim_idx ON test_reclaim(a, b);
+-- Check initial index size
+SELECT pg_relation_size('test_reclaim_idx') > 0 AS has_size;
+ has_size 
+----------
+ t
+(1 row)
+
+-- Delete most rows to create bloat (keep only ~3% of rows)
+DELETE FROM test_reclaim WHERE b > 0.03;
+-- Vacuum to mark dead tuples (but won't reclaim index pages)
+VACUUM test_reclaim;
+-- Run analyze to find merge candidates
+-- The exact output depends on random data, so we just check it returns rows
+SELECT count(*) > 0 AS has_candidates 
+FROM reclaim_space('test_reclaim_idx'::regclass, 50);
+ has_candidates 
+----------------
+ t
+(1 row)
+
+-- Show that merge candidates have valid structure
+SELECT 
+    bool_and(left_page_block IS NOT NULL) AS all_have_left,
+    bool_and(right_page_block IS NOT NULL) AS all_have_right,
+    bool_or(can_merge) AS some_can_merge
+FROM reclaim_space('test_reclaim_idx'::regclass, 50);
+ all_have_left | all_have_right | some_can_merge 
+---------------+----------------+----------------
+ t             | t              | t
+(1 row)
+
+-- Execute reclaim - first pass
+SELECT pages_merged >= 0 AS valid_result, space_reclaimed >= 0 AS valid_space
+FROM reclaim_space_execute('test_reclaim_idx'::regclass, 50);
+ valid_result | valid_space 
+--------------+-------------
+ t            | t
+(1 row)
+
+-- Execute reclaim - second pass
+SELECT pages_merged >= 0 AS valid_result, space_reclaimed >= 0 AS valid_space
+FROM reclaim_space_execute('test_reclaim_idx'::regclass, 50);
+ valid_result | valid_space 
+--------------+-------------
+ t            | t
+(1 row)
+
+-- Execute reclaim - third pass
+SELECT pages_merged >= 0 AS valid_result, space_reclaimed >= 0 AS valid_space
+FROM reclaim_space_execute('test_reclaim_idx'::regclass, 50);
+ valid_result | valid_space 
+--------------+-------------
+ t            | t
+(1 row)
+
+-- Execute reclaim - fourth pass
+SELECT pages_merged >= 0 AS valid_result, space_reclaimed >= 0 AS valid_space
+FROM reclaim_space_execute('test_reclaim_idx'::regclass, 50);
+ valid_result | valid_space 
+--------------+-------------
+ t            | t
+(1 row)
+
+-- Execute reclaim - fifth pass
+SELECT pages_merged >= 0 AS valid_result, space_reclaimed >= 0 AS valid_space
+FROM reclaim_space_execute('test_reclaim_idx'::regclass, 50);
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+connection to server was lost

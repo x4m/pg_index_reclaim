@@ -1,0 +1,6 @@
+# pg_index_reclaim extension
+comment = 'Reclaim space from B-tree indexes by merging underutilized pages'
+default_version = '1.0'
+module_pathname = '$libdir/pg_index_reclaim'
+relocatable = true
+
